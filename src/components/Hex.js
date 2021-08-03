@@ -42,7 +42,7 @@ export default class Hex {
         if (f(r, c)) {
             return true;
         }
-        if (!this.inBound(r, c) || this.board[r][c] != this.currentPlayer) {
+        if (!this.inBound(r, c) || this.board[r][c] !== this.currentPlayer) {
             return false;
         }
         let found = false;
