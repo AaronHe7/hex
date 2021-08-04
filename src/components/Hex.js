@@ -39,11 +39,11 @@ export default class Hex {
         return result;
     }
     dfs(r, c, f) {
-        if (f(r, c)) {
-            return true;
-        }
         if (!this.inBound(r, c) || this.board[r][c] !== this.currentPlayer) {
             return false;
+        }
+        if (f(r, c)) {
+            return true;
         }
         let found = false;
         let neighbors = this.neighbors(r, c);
@@ -66,27 +66,30 @@ export default class Hex {
         return [[r - 1, c], [r - 1, c + 1], [r, c + 1], [r + 1, c], [r + 1, c - 1], [r, c - 1]]
     }
     connectTop(r, c) {
-        return r < 0;
+        return r <= 0;
     }
     connectBottom(r, c) {
-        return r >= this.HEIGHT;
+        return r >= this.HEIGHT - 1;
     }
     connectLeft(r, c) {
-        return c < 0;
+        return c <= 0;
     }
     connectRight(r, c) {
-        return c >= this.WIDTH;
+        return c >= this.WIDTH - 1;
     }
     findWin(r, c) {
         let f1, f2;
         // red connects top and bottom
         if (this.currentPlayer > 0) {
-            f1 = this.connectTop;
-            f2 = this.connectBottom;
+            f1 = (r, c) => this.connectTop(r, c);
+            f2 = (r, c) => this.connectBottom(r, c);
         } else {
-            f1 = this.connectLeft;
-            f2 = this.connectRight;
+            f1 = (r, c) => this.connectLeft(r, c);
+            f2 = (r, c) => this.connectRight(r, c);
         }
-        return this.findConnection(r, c, f1) && this.findConnection(r, c, f2);
+        let connect1 = this.findConnection(r, c, f1);
+        let connect2 = this.findConnection(r, c, f2);
+        console.log(connect1, connect2);
+        return connect1 && connect2;
     }
 }
