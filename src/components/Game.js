@@ -133,7 +133,7 @@ export default class Game extends Component {
         for (let i = 0; i < this.hex.HEIGHT; i++) {
             for (let j = 0; j < this.hex.WIDTH; j++) {
                 let center = this.getCenter(i, j);
-                if ((x - center[0]) ** 2 + (y - center[1]) ** 2 <= this.cellSize ** 2) {
+                if ((x - center[0]) ** 2 + (y - center[1]) ** 2 <= 3 / 4 * this.cellSize ** 2) {
                     return [i, j];
                 }
             }
