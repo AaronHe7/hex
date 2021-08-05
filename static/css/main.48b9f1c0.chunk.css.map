@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://src/components/css/game.module.scss"],"names":[],"mappings":"AAAA,oBACI,cAAA,CAGJ,iBACI,SAAA,CAGJ,kBACI,UAAA","file":"main.48b9f1c0.chunk.css","sourcesContent":[".status {\n    font-size: 50px;\n}\n\n.red {\n    color: red;\n}\n\n.blue {\n    color: blue;\n}"]}
