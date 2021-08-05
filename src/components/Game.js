@@ -1,119 +1,157 @@
-import { render } from '@testing-library/react'
-import p5 from 'p5';
 import React, { Component } from 'react'
 import Hex from './Hex'
+import styles from './css/game.module.scss'
 
 
 export default class Game extends Component {
     constructor(props) {
         super(props)
-        this.myRef = React.createRef();
-    }
-    sketch(p) {
-        p.hex = new Hex();
-        p.WHITE = [255, 255, 255];
-        p.BLACK = [0, 0, 0];
-        p.RED = [255, 0, 0];
-        p.BLUE = [0, 0, 255];
-        p.hexagons = new Array(p.hex.HEIGHT);
-        p.cellSize = 40;
-        p.setup = function () {
-            p.createCanvas(p.windowWidth * 0.8, p.windowHeight * 0.8);
-            for (let i = 0; i < p.hex.HEIGHT; i++) {
-                p.hexagons[i] = new Array(p.hex.WIDTH);
-                for (let j = 0; j < p.hex.WIDTH; j++) {
-                    p.hexagons[i][j] = [];
-                    let center = p.getCenter(i, j);
-                    for (let k = 0; k < 6; k++) {
-                        let angle = k * Math.PI / 3 + Math.PI / 2;
-                        p.hexagons[i][j].push([center[0] + p.cellSize * Math.cos(angle), center[1] - p.cellSize * Math.sin(angle)]);
-                    }
-                }
-            }
-        }
-        p.getCenter = function (row, col) {
-            let s60 = Math.sin(Math.PI / 3);
-            let x = p.cellSize * 1.5 + row * p.cellSize * s60 + col * 2 * p.cellSize * s60;
-            let y = p.cellSize * 1.5 + row * p.cellSize * 3 / 2;
-            return [x, y];
-        }
-        p.drawCell = function (row, col) {
-            p.stroke(p.BLACK);
-            p.strokeWeight(2);
-            let points = p.hexagons[row][col];
-            p.beginShape();
-            for (let i = 0; i < 6; i++) {
-                p.vertex(...points[i]);
-            }
-            p.endShape(p.CLOSE);
-            p.strokeWeight(5);
-            for (let i = 0; i < 6; i++) {
-                let coords = [points[i][0], points[i][1], points[(i + 1) % 6][0], points[(i + 1) % 6][1]];
-                let top = row === 0 && (i === 0 || i === 5);
-                let bottom = row === p.hex.HEIGHT - 1 && (i === 2 || i === 3);
-                let left = col === 0 && (i === 1 || i === 2);
-                let right = col === p.hex.WIDTH - 1 && (i === 4 || i === 5);
-                if (top || bottom) {
-                    p.stroke(p.RED);
-                    p.line(...coords);
-                }
-                if (left || right) {
-                    p.stroke(p.BLUE);
-                    p.line(...coords);
-                }
-            }
-        }
-        p.draw = function () {
-            p.background(255);
-            p.stroke(100);
-            for (let i = 0; i < p.hex.HEIGHT; i++) {
-                for (let j = 0; j < p.hex.WIDTH; j++) {
-                    p.fill(p.WHITE);
-                    p.drawCell(i, j);
-                    let center = p.getCenter(i, j);
-                    let color;
-                    switch (p.hex.board[i][j]) {
-                        case 1:
-                            color = p.RED;
-                            break;
-                        case -1:
-                            color = p.BLUE;
-                            break;
-                    }
-                    if (color) {
-                        p.stroke(p.BLACK);
-                        p.strokeWeight(4);
-                        p.fill(color);
-                        p.circle(...center, p.cellSize);
-                    }
-                }
-            }
-        }
-        p.getCell = function (x, y) {
-            for (let i = 0; i < p.hex.HEIGHT; i++) {
-                for (let j = 0; j < p.hex.WIDTH; j++) {
-                    let center = p.getCenter(i, j);
-                    if ((x - center[0]) ** 2 + (y - center[1]) ** 2 <= p.cellSize ** 2) {
-                        return [i, j];
-                    }
-                }
-            }
-        }
-        p.mousePressed = function () {
-            let cellCoords = p.getCell(p.mouseX, p.mouseY);
-            if (cellCoords === undefined) return;
-            p.hex.move(...cellCoords);
-        }
+        this.canvasRef = React.createRef();
+        this.statusRef = React.createRef();
+        this.statusRef2 = React.createRef();
     }
     componentDidMount() {
+        this.canvas = this.canvasRef.current;
+        this.ctx = this.canvas.getContext("2d");
+        this.hex = new Hex();
+        this.WHITE = [255, 255, 255];
+        this.BLACK = [0, 0, 0];
+        this.RED = [255, 0, 0];
+        this.BLUE = [0, 0, 255];
+        this.hexagons = new Array(this.hex.HEIGHT);
+        this.cellSize = 80;
+        for (let i = 0; i < this.hex.HEIGHT; i++) {
+            this.hexagons[i] = new Array(this.hex.WIDTH);
+            for (let j = 0; j < this.hex.WIDTH; j++) {
+                this.hexagons[i][j] = [];
+                let center = this.getCenter(i, j);
+                for (let k = 0; k < 6; k++) {
+                    let angle = k * Math.PI / 3 + Math.PI / 2;
+                    this.hexagons[i][j].push([center[0] + this.cellSize * Math.cos(angle), center[1] - this.cellSize * Math.sin(angle)]);
+                }
+            }
+        }
+        setInterval(() => {
+            this.update()
+            this.draw()
+        }, 1000 / 30);
         let _this = this;
-        this.p5 = new p5(this.sketch, this.myRef.current);
+        this.canvas.addEventListener('click', function (e) {
+            const rect = _this.canvas.getBoundingClientRect();
+            const x = 2 * (e.clientX - rect.left);
+            const y = 2 * (e.clientY - rect.top);
+            _this.mousePressed(x, y)
+        })
+    }
+    getCenter(row, col) {
+        let s60 = Math.sin(Math.PI / 3);
+        let x = this.cellSize * 1.5 + row * this.cellSize * s60 + col * 2 * this.cellSize * s60;
+        let y = this.cellSize * 1.5 + row * this.cellSize * 3 / 2;
+        return [x, y];
+    }
+    drawCell(row, col) {
+        this.ctx.strokeStyle = "black";
+        this.ctx.lineWidth = 2;
+        let points = this.hexagons[row][col];
+        this.ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            this.ctx.moveTo(...points[i]);
+            this.ctx.lineTo(...points[(i + 1) % 6]);
+        }
+        this.ctx.stroke();
+        this.ctx.lineWidth = 5;
+        for (let i = 0; i < 6; i++) {
+            let coords = [[points[i][0], points[i][1]], [points[(i + 1) % 6][0], points[(i + 1) % 6][1]]];
+            let top = row === 0 && (i === 0 || i === 5);
+            let bottom = row === this.hex.HEIGHT - 1 && (i === 2 || i === 3);
+            let left = col === 0 && (i === 1 || i === 2);
+            let right = col === this.hex.WIDTH - 1 && (i === 4 || i === 5);
+            if (top || bottom) {
+                this.ctx.strokeStyle = "red";
+                this.ctx.beginPath();
+                this.ctx.moveTo(...coords[0]);
+                this.ctx.lineTo(...coords[1]);
+                this.ctx.stroke();
+            }
+            if (left || right) {
+                this.ctx.strokeStyle = "blue";
+                this.ctx.beginPath();
+                this.ctx.moveTo(...coords[0]);
+                this.ctx.lineTo(...coords[1]);
+                this.ctx.stroke();
+            }
+        }
+    }
+    draw() {
+        this.ctx.fillStyle = "white";
+        this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+        for (let i = 0; i < this.hex.HEIGHT; i++) {
+            for (let j = 0; j < this.hex.WIDTH; j++) {
+                this.ctx.fillStyle = "white";
+                this.drawCell(i, j);
+                let center = this.getCenter(i, j);
+                let color;
+                switch (this.hex.board[i][j]) {
+                    case 1:
+                        color = "red";
+                        break;
+                    case -1:
+                        color = "blue";
+                        break;
+                }
+                if (color) {
+                    this.ctx.strokeStyle = "black"
+                    this.ctx.lineWidth = 5;
+                    this.ctx.beginPath();
+                    this.ctx.arc(...center, this.cellSize / 2, 0, 2 * Math.PI);
+                    this.ctx.stroke();
+                    this.ctx.fillStyle = color;
+                    this.ctx.fill();
+                }
+            }
+        }
+    }
+    update() {
+        let status = this.statusRef.current;
+        let status2 = this.statusRef2.current;
+        if (!this.hex.gameOver) {
+            status.textContent = `${this.hex.currentPlayer > 0 ? "Red" : "Blue"}`
+            status2.textContent = "'s Turn";
+            if (this.hex.currentPlayer > 0) {
+                status.classList.remove(styles.blue);
+                status.classList.add(styles.red);
+            } else {
+                status.classList.remove(styles.red);
+                status.classList.add(styles.blue);
+            }
+        } else {
+            status.textContent = `${this.hex.winner > 0 ? "Red" : "Blue"}`
+            status2.textContent = " Wins";
+        }
+    }
+    getCell(x, y) {
+        for (let i = 0; i < this.hex.HEIGHT; i++) {
+            for (let j = 0; j < this.hex.WIDTH; j++) {
+                let center = this.getCenter(i, j);
+                if ((x - center[0]) ** 2 + (y - center[1]) ** 2 <= this.cellSize ** 2) {
+                    return [i, j];
+                }
+            }
+        }
+    }
+    mousePressed(x, y) {
+        let cellCoords = this.getCell(x, y);
+        if (cellCoords === undefined) return;
+        this.hex.move(...cellCoords);
     }
     render() {
         return (
             <div>
-                <div ref={this.myRef}></div>
-            </div>
+                <span ref={this.statusRef} className={styles.status}></span>
+                <span ref={this.statusRef2} className={styles.status}></span>
+                <br />
+                <canvas ref={this.canvasRef} width="2400" height="1600" style={{ width: "1200px", height: "800px" }}></canvas>
+            </div >
         )
     }
 }
