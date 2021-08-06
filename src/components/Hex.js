@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 export default class Hex {
-    constructor() {
-        this.WIDTH = 11;
-        this.HEIGHT = 11;
+    constructor(height = 11, width = 11) {
+        this.WIDTH = height;
+        this.HEIGHT = width;
         this.currentPlayer = 1;
         this.gameOver = false;
         this.winner = 0;
@@ -89,7 +89,6 @@ export default class Hex {
         }
         let connect1 = this.findConnection(r, c, f1);
         let connect2 = this.findConnection(r, c, f2);
-        console.log(connect1, connect2);
         return connect1 && connect2;
     }
 }

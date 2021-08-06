@@ -9,3 +9,24 @@
 .blue {
     color: blue;
 }
+
+.container {
+    display: flex;
+}
+
+.controls {
+    width: 40%;
+    background-color: lightgray;
+    margin: 0;
+    padding: 10px;
+    input {
+        margin: 5px;
+        width: 80px;
+    }
+    select {
+        margin: 5px
+    }
+}
+
+.game {
+}

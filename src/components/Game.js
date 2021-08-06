@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Hex from './Hex'
 import styles from './css/game.module.scss'
+import randomPlayer from './randomPlayer'
 
 
 export default class Game extends Component {
@@ -9,15 +10,49 @@ export default class Game extends Component {
         this.canvasRef = React.createRef();
         this.statusRef = React.createRef();
         this.statusRef2 = React.createRef();
+        this.heightRef = React.createRef();
+        this.widthRef = React.createRef();
+        this.redRef = React.createRef();
+        this.blueRef = React.createRef();
+    }
+    isInteger(s) {
+        for (let i = 0; i < s.length; i++) {
+            if (!"0123456789".includes(s[i])) {
+                return false;
+            }
+        }
+        return s.length > 0 && parseInt(s) !== 0;
     }
     componentDidMount() {
         this.canvas = this.canvasRef.current;
         this.ctx = this.canvas.getContext("2d");
-        this.hex = new Hex();
         this.WHITE = [255, 255, 255];
         this.BLACK = [0, 0, 0];
         this.RED = [255, 0, 0];
         this.BLUE = [0, 0, 255];
+        this.interval = setInterval(() => {
+            this.update()
+            this.draw()
+        }, 1000 / 30);
+        let _this = this;
+        this.canvas.addEventListener('click', function (e) {
+            const rect = _this.canvas.getBoundingClientRect();
+            const ratioX = _this.canvas.width / rect.width;
+            const ratioY = _this.canvas.height / rect.height;
+            const x = ratioX * (e.clientX - rect.left);
+            const y = ratioY * (e.clientY - rect.top);
+            _this.mousePressed(x, y)
+        })
+    }
+    startGame() {
+        if (!this.isInteger(this.heightRef.current.value) || !this.isInteger(this.widthRef.current.value)) {
+            return;
+        }
+        this.aiRed = this.redRef.current.value;
+        this.aiBlue = this.blueRef.current.value;
+        let height = parseInt(this.heightRef.current.value);
+        let width = parseInt(this.widthRef.current.value);
+        this.hex = new Hex(height, width);
         this.hexagons = new Array(this.hex.HEIGHT);
         this.cellSize = 80;
         for (let i = 0; i < this.hex.HEIGHT; i++) {
@@ -31,17 +66,6 @@ export default class Game extends Component {
                 }
             }
         }
-        setInterval(() => {
-            this.update()
-            this.draw()
-        }, 1000 / 30);
-        let _this = this;
-        this.canvas.addEventListener('click', function (e) {
-            const rect = _this.canvas.getBoundingClientRect();
-            const x = 2 * (e.clientX - rect.left);
-            const y = 2 * (e.clientY - rect.top);
-            _this.mousePressed(x, y)
-        })
     }
     getCenter(row, col) {
         let s60 = Math.sin(Math.PI / 3);
@@ -83,8 +107,10 @@ export default class Game extends Component {
         }
     }
     draw() {
+        if (!this.hex) return;
         this.ctx.fillStyle = "white";
         this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fill();
         for (let i = 0; i < this.hex.HEIGHT; i++) {
             for (let j = 0; j < this.hex.WIDTH; j++) {
                 this.ctx.fillStyle = "white";
@@ -114,6 +140,12 @@ export default class Game extends Component {
     update() {
         let status = this.statusRef.current;
         let status2 = this.statusRef2.current;
+        if (!this.hex) {
+            status.textContent = status2.textContent = "";
+            return;
+        }
+        this.move();
+        return;
         if (!this.hex.gameOver) {
             status.textContent = `${this.hex.currentPlayer > 0 ? "Red" : "Blue"}`
             status2.textContent = "'s Turn";
@@ -128,6 +160,19 @@ export default class Game extends Component {
             status.textContent = `${this.hex.winner > 0 ? "Red" : "Blue"}`
             status2.textContent = " Wins";
         }
+    }
+    move() {
+        if (this.hex.gameOver) return;
+        let playerString = this.hex.currentPlayer == 1 ? this.aiRed : this.aiBlue;
+        let player;
+        if (playerString === "manual") return;
+        switch (playerString) {
+            case "random":
+                player = new randomPlayer(this.hex);
+                break;
+        }
+        console.log(playerString);
+        player.move();
     }
     getCell(x, y) {
         for (let i = 0; i < this.hex.HEIGHT; i++) {
@@ -146,12 +191,36 @@ export default class Game extends Component {
     }
     render() {
         return (
-            <div>
-                <span ref={this.statusRef} className={styles.status}></span>
-                <span ref={this.statusRef2} className={styles.status}></span>
-                <br />
-                <canvas ref={this.canvasRef} width="2400" height="1600" style={{ width: "1200px", height: "800px" }}></canvas>
-            </div >
+            <div class={styles.container}>
+                <div class={styles.controls}>
+                    <label for="height">Height:</label>
+                    <input type="number" min="1" name="height" id="height" ref={this.heightRef} value="6" />
+                    <label for="width">Width:</label>
+                    <input type="number" min="1" name="width" id="width" ref={this.widthRef} value="6" />
+                    <br />
+                    <label for="red">Red:</label>
+                    <select name="red" id="red" ref={this.redRef}>
+                        <option value="manual">Manual</option>
+                        <option value="random">Random</option>
+                        {/* <option value="mcts">MCTS</option> */}
+                    </select>
+                    <br />
+                    <label for="blue">Blue:</label>
+                    <select name="blue" id="blue" ref={this.blueRef}>
+                        <option value="manual">Manual</option>
+                        <option value="random">Random</option>
+                        {/* <option value="mcts">MCTS</option> */}
+                    </select>
+                    <br />
+                    <button onClick={() => this.startGame()}>Start game</button>
+                </div>
+                <div class={styles.game}>
+                    <span ref={this.statusRef} className={styles.status}></span>
+                    <span ref={this.statusRef2} className={styles.status}></span>
+                    <br />
+                    <canvas ref={this.canvasRef} width="2400" height="1600" style={{ width: "60vw" }}></canvas>
+                </div >
+            </div>
         )
     }
 }
