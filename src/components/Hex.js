@@ -25,10 +25,9 @@ export default class Hex {
         hex.currentPlayer = this.currentPlayer;
         hex.gameOver = this.gameOver;
         hex.winner = this.winner;
-        for (let i = 0; i < hex.HEIGHT; i++) {
-            for (let j = 0; j < hex.WIDTH; j++) {
-                hex.board[i][j] = this.board[i][j];
-            }
+        for (let move of this.moveHistory) {
+            hex.board[move[0]][move[1]] = this.board[move[0]][move[1]];
+            hex.moveHistory.push([...move]);
         }
         return hex;
     }
@@ -62,6 +61,7 @@ export default class Hex {
         return result;
     }
     dfs(r, c, f) {
+        this.visited++;
         if (!this.inBound(r, c) || this.board[r][c] !== this.currentPlayer) {
             return false;
         }
@@ -101,6 +101,10 @@ export default class Hex {
         return c >= this.WIDTH - 1;
     }
     findWin(r, c) {
+        let numMoves = Math.ceil(this.moveHistory.length / 2);
+        if (numMoves < (this.currentPlayer > 0 ? this.HEIGHT : this.WIDTH)) {
+            return false;
+        }
         let f1, f2;
         // red connects top and bottom
         if (this.currentPlayer > 0) {
