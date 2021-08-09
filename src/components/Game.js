@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Hex from './Hex'
+import AntiHex from './AntiHex'
 import styles from './css/game.module.scss'
 import RandomPlayer from './RandomPlayer'
 import Mcts from './Mcts'
@@ -11,6 +12,7 @@ export default class Game extends Component {
         this.canvasRef = React.createRef();
         this.statusRef = React.createRef();
         this.statusRef2 = React.createRef();
+        this.modeRef = React.createRef();
         this.heightRef = React.createRef();
         this.widthRef = React.createRef();
         this.redRef = React.createRef();
@@ -53,7 +55,15 @@ export default class Game extends Component {
         this.aiBlue = this.blueRef.current.value;
         let height = parseInt(this.heightRef.current.value);
         let width = parseInt(this.widthRef.current.value);
-        this.hex = new Hex(width, height);
+        let mode = this.modeRef.current.value;
+        switch (mode) {
+            case "normal":
+                this.hex = new Hex(width, height);
+                break;
+            case "anti":
+                this.hex = new AntiHex(width, height);
+                break;
+        }
         this.hexagons = new Array(this.hex.HEIGHT);
         this.cellSize = this.canvas.width / (Math.max(this.hex.WIDTH, this.hex.HEIGHT) * 1.5 * 2);
         for (let i = 0; i < this.hex.HEIGHT; i++) {
@@ -213,7 +223,7 @@ export default class Game extends Component {
     }
     mousePressed(x, y) {
         let cellCoords = this.getCell(x, y);
-        if (cellCoords === undefined) return;
+        if (cellCoords === undefined || this.hex.gameOver) return;
         this.manualMove = cellCoords;
     }
     render() {
@@ -223,6 +233,13 @@ export default class Game extends Component {
                     <div class={styles.controls}>
                         <h1>Hex</h1>
                         <h2>Aaron He</h2>
+                        <label for="mode">Mode:</label>
+                        <select name="mode" id="mode" ref={this.modeRef}>
+                            <option value="normal">Normal</option>
+                            {/* <option value="dark">Dark Hex</option> */}
+                            <option value="anti">Anti Hex</option>
+                        </select>
+                        <br />
                         <label for="height">Height:</label>
                         <input type="number" min="1" name="height" id="height" ref={this.heightRef} defaultValue="6" />
                         <label for="width">Width:</label>
@@ -243,8 +260,10 @@ export default class Game extends Component {
                         <br />
                         <button onClick={() => this.startGame()}>Start game</button>
                         <br />
-                        <button onClick={() => this.undo()} class={styles.undoButton}>Undo</button>
-                        <button onClick={() => this.undo(2)}>Undo 2</button>
+                        <div class={styles.undoButtons}>
+                            <button onClick={() => this.undo()} class={styles.undoButton}>Undo</button>
+                            <button onClick={() => this.undo(2)}>Undo 2</button>
+                        </div>
                     </div>
                 </div>
                 <div class={styles.game}>

@@ -1,5 +1,3 @@
-import Hex from './Hex'
-
 Array.prototype.shuffle = function () {
     for (let i = 0; i < this.length; i++) {
         let j = Math.floor(Math.random() * (i + 1));
@@ -100,9 +98,12 @@ class Node {
 export default class Mcts {
     constructor(hex) {
         this.hex = hex;
+        console.log(hex);
         this.rootNode = new Node(hex);
+        console.log(hex);
+        console.log(this.rootNode.hex);
     }
-    bestMove(simulations = 4000) {
+    bestMove(simulations = 2000) {
         if (this.rootNode.gameOver) {
             return;
         }
