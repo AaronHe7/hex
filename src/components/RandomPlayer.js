@@ -12,6 +12,7 @@ export default class RandomPlayer {
             }
         }
         if (!moves.length) return;
+        // cloning move by move avg ~750ms
         this.hex.move(...moves[Math.floor(Math.random() * moves.length)]);
     }
 }

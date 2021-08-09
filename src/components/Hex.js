@@ -115,6 +115,7 @@ export default class Hex {
             f2 = (r, c) => this.connectRight(r, c);
         }
         let connect1 = this.findConnection(r, c, f1);
+        if (!connect1) return false;
         let connect2 = this.findConnection(r, c, f2);
         return connect1 && connect2;
     }

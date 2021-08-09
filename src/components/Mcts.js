@@ -76,13 +76,17 @@ class Node {
     }
     simulate() {
         let moves = [...this.childMoves];
-        let copyHex = this.hex.copy();
         moves.shuffle();
-        for (let move of moves) {
-            if (copyHex.gameOver) break;
-            copyHex.move(...move);
+        for (let i = 0; i <= moves.length; i++) {
+            if (this.hex.gameOver) {
+                let winner = this.hex.winner;
+                for (let j = 0; j < i; j++) {
+                    this.hex.undo();
+                }
+                return winner;
+            }
+            this.hex.move(...moves[i]);
         }
-        return copyHex.winner;
     }
     backpropagate(winner) {
         this.games++;
@@ -116,7 +120,10 @@ export default class Mcts {
         return bestChild.moveIndex;
     }
     move() {
+        let time = new Date().getTime();
         let move = this.bestMove();
         this.hex.move(...move);
+        time = new Date().getTime() - time;
+        console.log(time + "ms")
     }
 }
