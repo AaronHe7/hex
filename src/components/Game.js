@@ -201,6 +201,7 @@ export default class Game extends Component {
         }
     }
     getCell(x, y) {
+        if (!this.hex) return;
         for (let i = 0; i < this.hex.HEIGHT; i++) {
             for (let j = 0; j < this.hex.WIDTH; j++) {
                 let center = this.getCenter(i, j);
