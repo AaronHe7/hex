@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 export default class Hex {
-    constructor(height = 11, width = 11) {
-        this.WIDTH = height;
-        this.HEIGHT = width;
+    constructor(width = 11, height = 11) {
+        this.WIDTH = width;
+        this.HEIGHT = height;
         this.currentPlayer = 1;
         this.gameOver = false;
         this.winner = 0;
@@ -18,17 +18,40 @@ export default class Hex {
             this.board[i] = new Array(this.WIDTH).fill(0);
             this.searched[i] = new Array(this.WIDTH).fill(false);
         }
+        this.moveHistory = [];
+    }
+    copy() {
+        let hex = new Hex(this.WIDTH, this.HEIGHT);
+        hex.currentPlayer = this.currentPlayer;
+        hex.gameOver = this.gameOver;
+        hex.winner = this.winner;
+        for (let i = 0; i < hex.HEIGHT; i++) {
+            for (let j = 0; j < hex.WIDTH; j++) {
+                hex.board[i][j] = this.board[i][j];
+            }
+        }
+        return hex;
     }
     move(r, c) {
         if (this.board[r][c] !== 0 || this.gameOver || !this.inBound(r, c)) {
             return false;
         }
         this.board[r][c] = this.currentPlayer;
+        this.moveHistory.push([r, c]);
         if (this.findWin(r, c)) {
             this.winner = this.currentPlayer;
             this.gameOver = true;
         }
         this.currentPlayer *= -1;
+    }
+    undo() {
+        let move = this.moveHistory.pop();
+        if (move) {
+            this.gameOver = false;
+            this.currentPlayer *= -1;
+            this.winner = 0;
+            this.board[move[0]][move[1]] = 0;
+        }
     }
     findConnection(r, c, f) {
         let result = this.dfs(r, c, f);

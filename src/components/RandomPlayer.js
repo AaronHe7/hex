@@ -1,4 +1,4 @@
-export default class randomPlayer {
+export default class RandomPlayer {
     constructor(hex) {
         this.hex = hex;
     }
