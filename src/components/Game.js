@@ -155,7 +155,7 @@ export default class Game extends Component {
                         break;
                 }
                 // For dark hex: reveal all cells at the end of the game
-                if (this.hex.gameOver && (this.hex.view[1][i][j] != this.hex.board[i][j] || this.hex.view[-1][i][j] != this.hex.board[i][j])) {
+                if (this.mode == "dark" && this.hex.gameOver && (this.hex.view[1][i][j] != this.hex.board[i][j] || this.hex.view[-1][i][j] != this.hex.board[i][j])) {
                     switch (this.hex.board[i][j]) {
                         case 1:
                             color = "rgba(255, 0, 0, 0.3)"
@@ -167,10 +167,8 @@ export default class Game extends Component {
                 }
                 if (color) {
                     this.ctx.strokeStyle = "black"
-                    this.ctx.lineWidth = 5;
                     this.ctx.beginPath();
                     this.ctx.arc(...center, this.cellSize / 2, 0, 2 * Math.PI);
-                    this.ctx.stroke();
                     this.ctx.fillStyle = color;
                     this.ctx.fill();
                 }
