@@ -260,6 +260,7 @@ export default class Game extends Component {
                     <div class={styles.controls}>
                         <h1>Hex</h1>
                         <h2>Aaron He</h2>
+                        <h3><a href="https://aaronhe7.github.io/hex">aaronhe7.github.io/hex</a></h3>
                         <label for="mode">Mode:</label>
                         <select name="mode" id="mode" ref={this.modeRef}>
                             <option value="normal">Normal</option>
