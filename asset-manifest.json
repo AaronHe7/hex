@@ -1,20 +1,20 @@
 {
   "files": {
     "main.css": "/hex/static/css/main.739f138b.chunk.css",
-    "main.js": "/hex/static/js/main.ab3194e9.chunk.js",
-    "main.js.map": "/hex/static/js/main.ab3194e9.chunk.js.map",
+    "main.js": "/hex/static/js/main.92e88793.chunk.js",
+    "main.js.map": "/hex/static/js/main.92e88793.chunk.js.map",
     "runtime-main.js": "/hex/static/js/runtime-main.405378d7.js",
     "runtime-main.js.map": "/hex/static/js/runtime-main.405378d7.js.map",
-    "static/js/2.377745e3.chunk.js": "/hex/static/js/2.377745e3.chunk.js",
-    "static/js/2.377745e3.chunk.js.map": "/hex/static/js/2.377745e3.chunk.js.map",
+    "static/js/2.e2e06796.chunk.js": "/hex/static/js/2.e2e06796.chunk.js",
+    "static/js/2.e2e06796.chunk.js.map": "/hex/static/js/2.e2e06796.chunk.js.map",
     "index.html": "/hex/index.html",
     "static/css/main.739f138b.chunk.css.map": "/hex/static/css/main.739f138b.chunk.css.map",
-    "static/js/2.377745e3.chunk.js.LICENSE.txt": "/hex/static/js/2.377745e3.chunk.js.LICENSE.txt"
+    "static/js/2.e2e06796.chunk.js.LICENSE.txt": "/hex/static/js/2.e2e06796.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.405378d7.js",
-    "static/js/2.377745e3.chunk.js",
+    "static/js/2.e2e06796.chunk.js",
     "static/css/main.739f138b.chunk.css",
-    "static/js/main.ab3194e9.chunk.js"
+    "static/js/main.92e88793.chunk.js"
   ]
 }
