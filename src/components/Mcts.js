@@ -98,10 +98,7 @@ class Node {
 export default class Mcts {
     constructor(hex) {
         this.hex = hex;
-        console.log(hex);
         this.rootNode = new Node(hex);
-        console.log(hex);
-        console.log(this.rootNode.hex);
     }
     bestMove(simulations = 2000) {
         if (this.rootNode.gameOver) {

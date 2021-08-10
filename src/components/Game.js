@@ -4,6 +4,7 @@ import AntiHex from './AntiHex'
 import styles from './css/game.module.scss'
 import RandomPlayer from './RandomPlayer'
 import Mcts from './Mcts'
+import DarkHex from './DarkHex'
 
 
 export default class Game extends Component {
@@ -55,13 +56,16 @@ export default class Game extends Component {
         this.aiBlue = this.blueRef.current.value;
         let height = parseInt(this.heightRef.current.value);
         let width = parseInt(this.widthRef.current.value);
-        let mode = this.modeRef.current.value;
-        switch (mode) {
+        this.mode = this.modeRef.current.value;
+        switch (this.mode) {
             case "normal":
                 this.hex = new Hex(width, height);
                 break;
             case "anti":
                 this.hex = new AntiHex(width, height);
+                break;
+            case "dark":
+                this.hex = new DarkHex(width, height);
                 break;
         }
         this.hexagons = new Array(this.hex.HEIGHT);
@@ -124,19 +128,42 @@ export default class Game extends Component {
         this.ctx.fillStyle = "white";
         this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fill();
+        let board;
+        if (this.mode == "dark") {
+            if (this.aiRed == "manual" && this.aiRed != this.aiBlue) {
+                board = this.hex.view[1];
+            } else if (this.aiBlue == "manual" && this.aiRed != this.aiBlue) {
+                board = this.hex.view[-1];
+            } else {
+                board = this.hex.view[this.hex.currentPlayer];
+            }
+        } else {
+            board = this.hex.board;
+        }
         for (let i = 0; i < this.hex.HEIGHT; i++) {
             for (let j = 0; j < this.hex.WIDTH; j++) {
                 this.ctx.fillStyle = "white";
                 this.drawCell(i, j);
                 let center = this.getCenter(i, j);
                 let color;
-                switch (this.hex.board[i][j]) {
+                switch (board[i][j]) {
                     case 1:
                         color = "red";
                         break;
                     case -1:
                         color = "blue";
                         break;
+                }
+                // For dark hex: reveal all cells at the end of the game
+                if (this.hex.gameOver && (this.hex.view[1][i][j] != this.hex.board[i][j] || this.hex.view[-1][i][j] != this.hex.board[i][j])) {
+                    switch (this.hex.board[i][j]) {
+                        case 1:
+                            color = "rgba(255, 0, 0, 0.3)"
+                            break;
+                        case -1:
+                            color = "rgba(0, 0, 255, 0.3)"
+                            break;
+                    }
                 }
                 if (color) {
                     this.ctx.strokeStyle = "black"
@@ -236,8 +263,8 @@ export default class Game extends Component {
                         <label for="mode">Mode:</label>
                         <select name="mode" id="mode" ref={this.modeRef}>
                             <option value="normal">Normal</option>
-                            {/* <option value="dark">Dark Hex</option> */}
                             <option value="anti">Anti Hex</option>
+                            <option value="dark">Dark Hex</option>
                         </select>
                         <br />
                         <label for="height">Height:</label>

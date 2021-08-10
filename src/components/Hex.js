@@ -42,6 +42,7 @@ export default class Hex {
             this.gameOver = true;
         }
         this.currentPlayer *= -1;
+        return true;
     }
     undo() {
         let move = this.moveHistory.pop();
