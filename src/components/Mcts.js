@@ -100,7 +100,8 @@ export default class Mcts {
         this.hex = hex;
         this.rootNode = new Node(hex);
     }
-    bestMove(simulations = 2000) {
+    bestMove() {
+        let simulations = Math.floor(80000 / (this.hex.WIDTH * this.hex.HEIGHT));
         if (this.rootNode.gameOver) {
             return;
         }

@@ -5,6 +5,7 @@ import styles from './css/game.module.scss'
 import RandomPlayer from './RandomPlayer'
 import Mcts from './Mcts'
 import DarkHex from './DarkHex'
+import DoubleHex from './DoubleHex'
 
 
 export default class Game extends Component {
@@ -59,15 +60,19 @@ export default class Game extends Component {
         this.mode = this.modeRef.current.value;
         switch (this.mode) {
             case "normal":
-                this.hex = new Hex(width, height);
+                this.hex = Hex;
                 break;
             case "anti":
-                this.hex = new AntiHex(width, height);
+                this.hex = AntiHex;
                 break;
             case "dark":
-                this.hex = new DarkHex(width, height);
+                this.hex = DarkHex;
+                break;
+            case "double":
+                this.hex = DoubleHex;
                 break;
         }
+        this.hex = new (this.hex)(width, height);
         this.hexagons = new Array(this.hex.HEIGHT);
         this.cellSize = this.canvas.width / (Math.max(this.hex.WIDTH, this.hex.HEIGHT) * 1.5 * 2);
         for (let i = 0; i < this.hex.HEIGHT; i++) {
@@ -264,6 +269,7 @@ export default class Game extends Component {
                             <option value="normal">Normal</option>
                             <option value="anti">Anti Hex</option>
                             <option value="dark">Dark Hex</option>
+                            <option value="double">Double Hex</option>
                         </select>
                         <br />
                         <label for="height">Height:</label>
